@@ -26,7 +26,18 @@ func main() {
 
 	r.HandleFunc("/", HomeHandler)
 	r.HandleFunc("/books", getBooks).Methods("GET")
+	r.HandleFunc("/book/{id}", getBook).Methods("GET")
 	http.ListenAndServe(":8080", r)
+}
+
+func getBook(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	for _, book := range books {
+		if book.ID == params["id"] {
+			json.NewEncoder(w).Encode(book)
+		}
+	}
+	json.NewEncoder(w).Encode([]string{})
 }
 
 func getBooks(w http.ResponseWriter, r *http.Request) {
