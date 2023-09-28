@@ -29,7 +29,19 @@ func main() {
 	r.HandleFunc("/book/{id}", getBook).Methods("GET")
 	r.HandleFunc("/books", addBooks).Methods("POST")
 	r.HandleFunc("/books", updateBook).Methods("PUT")
+	r.HandleFunc("/book/{id}", removeBook).Methods("DELETE")
 	http.ListenAndServe(":8080", r)
+}
+
+func removeBook(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	for i, book := range books {
+		if book.ID == params["id"] {
+			books = append(books[:i], books[i+1:]...)
+		}
+	}
+	json.NewEncoder(w).Encode(books)
 }
 
 func updateBook(w http.ResponseWriter, r *http.Request) {
