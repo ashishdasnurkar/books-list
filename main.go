@@ -28,7 +28,20 @@ func main() {
 	r.HandleFunc("/books", getBooks).Methods("GET")
 	r.HandleFunc("/book/{id}", getBook).Methods("GET")
 	r.HandleFunc("/books", addBooks).Methods("POST")
+	r.HandleFunc("/books", updateBook).Methods("PUT")
 	http.ListenAndServe(":8080", r)
+}
+
+func updateBook(w http.ResponseWriter, r *http.Request) {
+	var book Book
+	json.NewDecoder(r.Body).Decode(&book)
+	for i, item := range books {
+		if item.ID == book.ID {
+			books[i] = book
+		}
+	}
+
+	json.NewEncoder(w).Encode(books)
 }
 
 func addBooks(w http.ResponseWriter, r *http.Request) {
