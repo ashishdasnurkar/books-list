@@ -3,9 +3,12 @@ package main
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/subosito/gotenv"
 )
 
 type Book struct {
@@ -17,7 +20,12 @@ type Book struct {
 
 var books []Book
 
+func init() {
+	gotenv.Load()
+}
+
 func main() {
+	log.Println(os.Getenv("PORT"))
 	r := mux.NewRouter()
 	books = append(books, Book{ID: "1", Title: "Book 1", Author: "Author 1", Year: "1991"},
 		Book{ID: "2", Title: "Book 2", Author: "Author 2", Year: "1992"},
