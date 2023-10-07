@@ -2,12 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/lib/pq"
 	"github.com/subosito/gotenv"
 )
 
@@ -24,8 +26,17 @@ func init() {
 	gotenv.Load()
 }
 
+func logFatal(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	log.Println(os.Getenv("PORT"))
+	pgUrl, err := pq.ParseURL(os.Getenv("ELEPHANTSQL_URL"))
+	logFatal(err)
+	fmt.Println(pgUrl)
 	r := mux.NewRouter()
 	books = append(books, Book{ID: "1", Title: "Book 1", Author: "Author 1", Year: "1991"},
 		Book{ID: "2", Title: "Book 2", Author: "Author 2", Year: "1992"},
