@@ -45,10 +45,6 @@ func main() {
 	logFatal(err)
 
 	r := mux.NewRouter()
-	books = append(books, Book{ID: "1", Title: "Book 1", Author: "Author 1", Year: "1991"},
-		Book{ID: "2", Title: "Book 2", Author: "Author 2", Year: "1992"},
-		Book{ID: "3", Title: "Book 3", Author: "Author 3", Year: "1993"},
-		Book{ID: "4", Title: "Book 4", Author: "Author 4", Year: "1994"})
 
 	r.HandleFunc("/", HomeHandler)
 	r.HandleFunc("/books", getBooks).Methods("GET")
@@ -101,6 +97,21 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBooks(w http.ResponseWriter, r *http.Request) {
+	var book Book
+	books = []Book{}
+
+	rows, err := db.Query("select * from books")
+	logFatal(err)
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
+		logFatal(err)
+
+		books = append(books, book)
+	}
+
 	json.NewEncoder(w).Encode(books)
 }
 
