@@ -1,8 +1,8 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -21,6 +21,7 @@ type Book struct {
 }
 
 var books []Book
+var db *sql.DB
 
 func init() {
 	gotenv.Load()
@@ -36,7 +37,13 @@ func main() {
 	log.Println(os.Getenv("PORT"))
 	pgUrl, err := pq.ParseURL(os.Getenv("ELEPHANTSQL_URL"))
 	logFatal(err)
-	fmt.Println(pgUrl)
+
+	db, err = sql.Open("postgres", pgUrl)
+	logFatal(err)
+
+	err = db.Ping()
+	logFatal(err)
+
 	r := mux.NewRouter()
 	books = append(books, Book{ID: "1", Title: "Book 1", Author: "Author 1", Year: "1991"},
 		Book{ID: "2", Title: "Book 2", Author: "Author 2", Year: "1992"},
