@@ -58,12 +58,12 @@ func main() {
 func removeBook(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
-	for i, book := range books {
-		if book.ID == params["id"] {
-			books = append(books[:i], books[i+1:]...)
-		}
-	}
-	json.NewEncoder(w).Encode(books)
+	result, err := db.Exec("delete from books where id=$1", params["id"])
+	logFatal(err)
+
+	rowsUpdated, err := result.RowsAffected()
+	logFatal(err)
+	json.NewEncoder(w).Encode(rowsUpdated)
 }
 
 func updateBook(w http.ResponseWriter, r *http.Request) {
