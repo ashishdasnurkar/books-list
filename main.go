@@ -8,19 +8,13 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/ashishdasnurkar/books-list/model"
 	"github.com/gorilla/mux"
 	"github.com/lib/pq"
 	"github.com/subosito/gotenv"
 )
 
-type Book struct {
-	ID     string `jason:id`
-	Title  string `jason:title`
-	Author string `jason:author`
-	Year   string `jason:year`
-}
-
-var books []Book
+var books []model.Book
 var db *sql.DB
 
 func init() {
@@ -67,7 +61,7 @@ func removeBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateBook(w http.ResponseWriter, r *http.Request) {
-	var book Book
+	var book model.Book
 	json.NewDecoder(r.Body).Decode(&book)
 	log.Println(book)
 
@@ -82,7 +76,7 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func addBooks(w http.ResponseWriter, r *http.Request) {
-	var book Book
+	var book model.Book
 	var bookID int
 	json.NewDecoder(r.Body).Decode(&book)
 	err := db.QueryRow("insert into books (title, author, year) values($1, $2, $3) RETURNING id",
@@ -93,7 +87,7 @@ func addBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBook(w http.ResponseWriter, r *http.Request) {
-	var book Book
+	var book model.Book
 	params := mux.Vars(r)
 
 	row := db.QueryRow("select * from books where id=$1", params["id"])
@@ -105,8 +99,8 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBooks(w http.ResponseWriter, r *http.Request) {
-	var book Book
-	books = []Book{}
+	var book model.Book
+	books = []model.Book{}
 
 	rows, err := db.Query("select * from books")
 	logFatal(err)
