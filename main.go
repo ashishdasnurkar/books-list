@@ -8,13 +8,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/ashishdasnurkar/books-list/model"
+	"github.com/ashishdasnurkar/books-list/models"
 	"github.com/gorilla/mux"
-	"github.com/lib/pq"
 	"github.com/subosito/gotenv"
 )
 
-var books []model.Book
+var books []models.Book
 var db *sql.DB
 
 func init() {
@@ -29,14 +28,6 @@ func logFatal(err error) {
 
 func main() {
 	log.Println(os.Getenv("PORT"))
-	pgUrl, err := pq.ParseURL(os.Getenv("ELEPHANTSQL_URL"))
-	logFatal(err)
-
-	db, err = sql.Open("postgres", pgUrl)
-	logFatal(err)
-
-	err = db.Ping()
-	logFatal(err)
 
 	r := mux.NewRouter()
 
@@ -61,7 +52,7 @@ func removeBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateBook(w http.ResponseWriter, r *http.Request) {
-	var book model.Book
+	var book models.Book
 	json.NewDecoder(r.Body).Decode(&book)
 	log.Println(book)
 
@@ -76,7 +67,7 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func addBooks(w http.ResponseWriter, r *http.Request) {
-	var book model.Book
+	var book models.Book
 	var bookID int
 	json.NewDecoder(r.Body).Decode(&book)
 	err := db.QueryRow("insert into books (title, author, year) values($1, $2, $3) RETURNING id",
@@ -87,7 +78,7 @@ func addBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBook(w http.ResponseWriter, r *http.Request) {
-	var book model.Book
+	var book models.Book
 	params := mux.Vars(r)
 
 	row := db.QueryRow("select * from books where id=$1", params["id"])
@@ -99,8 +90,8 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBooks(w http.ResponseWriter, r *http.Request) {
-	var book model.Book
-	books = []model.Book{}
+	var book models.Book
+	books = []models.Book{}
 
 	rows, err := db.Query("select * from books")
 	logFatal(err)
