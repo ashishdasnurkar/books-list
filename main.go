@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/ashishdasnurkar/books-list/controllers"
+	"github.com/ashishdasnurkar/books-list/driver"
 	"github.com/ashishdasnurkar/books-list/models"
 	"github.com/gorilla/mux"
 	"github.com/subosito/gotenv"
@@ -28,11 +30,12 @@ func logFatal(err error) {
 
 func main() {
 	log.Println(os.Getenv("PORT"))
-
+	db := driver.ConnectDB()
+	controller := controllers.Controller{}
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", HomeHandler)
-	r.HandleFunc("/books", getBooks).Methods("GET")
+	r.HandleFunc("/books", controller.GetBooks(db)).Methods("GET")
 	r.HandleFunc("/book/{id}", getBook).Methods("GET")
 	r.HandleFunc("/books", addBooks).Methods("POST")
 	r.HandleFunc("/books", updateBook).Methods("PUT")
@@ -87,25 +90,6 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 	logFatal(err)
 
 	json.NewEncoder(w).Encode(book)
-}
-
-func getBooks(w http.ResponseWriter, r *http.Request) {
-	var book models.Book
-	books = []models.Book{}
-
-	rows, err := db.Query("select * from books")
-	logFatal(err)
-
-	defer rows.Close()
-
-	for rows.Next() {
-		err = rows.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
-		logFatal(err)
-
-		books = append(books, book)
-	}
-
-	json.NewEncoder(w).Encode(books)
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {

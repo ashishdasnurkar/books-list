@@ -16,7 +16,7 @@ func logFatal(err error) {
 	}
 }
 
-func connect() *sql.DB {
+func ConnectDB() *sql.DB {
 	pgUrl, err := pq.ParseURL(os.Getenv("ELEPHANTSQL_URL"))
 	logFatal(err)
 
