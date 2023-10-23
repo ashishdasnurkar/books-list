@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"database/sql"
-	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/ashishdasnurkar/books-list/models"
+	bookRepository "github.com/ashishdasnurkar/books-list/repository/book"
+	"github.com/ashishdasnurkar/books-list/utils"
 )
 
 type Controller struct{}
@@ -21,20 +22,17 @@ func logFatal(err error) {
 func (c Controller) GetBooks(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var book models.Book
+		var error models.Error
 		books = []models.Book{}
+		bookRepo := bookRepository.BookRepository{}
+		books, err := bookRepo.GetBooks(db, book, books)
 
-		rows, err := db.Query("select * from books")
-		logFatal(err)
-
-		defer rows.Close()
-
-		for rows.Next() {
-			err = rows.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
-			logFatal(err)
-
-			books = append(books, book)
+		if err != nil {
+			error.Message = "Internal server error ..."
+			utils.SendError(w, http.StatusInternalServerError, error)
+			return
 		}
-
-		json.NewEncoder(w).Encode(books)
+		w.Header().Set("Content-Type", "application/json")
+		utils.SendSuccess(w, books)
 	}
 }

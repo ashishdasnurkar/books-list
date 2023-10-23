@@ -7,12 +7,12 @@ import (
 	"github.com/ashishdasnurkar/books-list/models"
 )
 
-func sendError(w http.ResponseWriter, status int, err models.Error) {
+func SendError(w http.ResponseWriter, status int, err models.Error) {
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(err)
 }
 
-func sendSuccess(w http.ResponseWriter, data interface{}) {
+func SendSuccess(w http.ResponseWriter, data interface{}) {
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(data)
 }
