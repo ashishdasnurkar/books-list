@@ -47,9 +47,15 @@ func (c Controller) GetBook(db *sql.DB) http.HandlerFunc {
 		book, err := bookRepo.GetBook(db, book, params["id"])
 
 		if err != nil {
-			error.Message = "Internal server error ..."
-			utils.SendError(w, http.StatusInternalServerError, error)
-			return
+			if err == sql.ErrNoRows {
+				error.Message = "No book found ..."
+				utils.SendError(w, http.StatusNotFound, error)
+				return
+			} else {
+				error.Message = "Internal server error ..."
+				utils.SendError(w, http.StatusInternalServerError, error)
+				return
+			}
 		}
 		w.Header().Set("Content-Type", "application/json")
 		utils.SendSuccess(w, book)

@@ -40,9 +40,5 @@ func (b BookRepository) GetBook(db *sql.DB, book models.Book, id string) (models
 
 	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
 
-	if err != nil {
-		return models.Book{}, err
-	}
-
-	return book, nil
+	return book, err
 }
