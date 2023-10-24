@@ -36,7 +36,7 @@ func main() {
 
 	r.HandleFunc("/", HomeHandler)
 	r.HandleFunc("/books", controller.GetBooks(db)).Methods("GET")
-	r.HandleFunc("/book/{id}", getBook).Methods("GET")
+	r.HandleFunc("/book/{id}", controller.GetBook(db)).Methods("GET")
 	r.HandleFunc("/books", addBooks).Methods("POST")
 	r.HandleFunc("/books", updateBook).Methods("PUT")
 	r.HandleFunc("/book/{id}", removeBook).Methods("DELETE")
@@ -78,18 +78,6 @@ func addBooks(w http.ResponseWriter, r *http.Request) {
 	logFatal(err)
 
 	json.NewEncoder(w).Encode(bookID)
-}
-
-func getBook(w http.ResponseWriter, r *http.Request) {
-	var book models.Book
-	params := mux.Vars(r)
-
-	row := db.QueryRow("select * from books where id=$1", params["id"])
-
-	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
-	logFatal(err)
-
-	json.NewEncoder(w).Encode(book)
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
