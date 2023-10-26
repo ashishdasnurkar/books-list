@@ -42,3 +42,18 @@ func (b BookRepository) GetBook(db *sql.DB, book models.Book, id string) (models
 
 	return book, err
 }
+
+func (b BookRepository) RemoveBook(db *sql.DB, id string) (int64, error) {
+	result, err := db.Exec("delete from books where id=$1", id)
+
+	if err != nil {
+		return 0, err
+	}
+
+	rowsUpdated, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsUpdated, nil
+}

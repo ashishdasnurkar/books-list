@@ -62,3 +62,26 @@ func (c Controller) GetBook(db *sql.DB) http.HandlerFunc {
 
 	}
 }
+
+func (c Controller) RemoveBook(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var error models.Error
+		params := mux.Vars(r)
+		bookRepo := bookRepository.BookRepository{}
+		rowsUpdated, err := bookRepo.RemoveBook(db, params["id"])
+
+		if err != nil {
+			if err == sql.ErrNoRows {
+				error.Message = "No book found ..."
+				utils.SendError(w, http.StatusNotFound, error)
+				return
+			} else {
+				error.Message = "Internal server error ..."
+				utils.SendError(w, http.StatusInternalServerError, error)
+				return
+			}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		utils.SendSuccess(w, rowsUpdated)
+	}
+}

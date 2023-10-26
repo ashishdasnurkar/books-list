@@ -39,19 +39,8 @@ func main() {
 	r.HandleFunc("/book/{id}", controller.GetBook(db)).Methods("GET")
 	r.HandleFunc("/books", addBooks).Methods("POST")
 	r.HandleFunc("/books", updateBook).Methods("PUT")
-	r.HandleFunc("/book/{id}", removeBook).Methods("DELETE")
+	r.HandleFunc("/book/{id}", controller.RemoveBook(db)).Methods("DELETE")
 	http.ListenAndServe(":8080", r)
-}
-
-func removeBook(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-
-	result, err := db.Exec("delete from books where id=$1", params["id"])
-	logFatal(err)
-
-	rowsUpdated, err := result.RowsAffected()
-	logFatal(err)
-	json.NewEncoder(w).Encode(rowsUpdated)
 }
 
 func updateBook(w http.ResponseWriter, r *http.Request) {
