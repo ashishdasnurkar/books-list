@@ -41,6 +41,23 @@ func (b BookRepository) AddBook(db *sql.DB, book models.Book, bookID int) (int, 
 	return bookID, err
 }
 
+func (b BookRepository) UpdateBook(db *sql.DB, book models.Book) (int64, error) {
+	results, err := db.Exec("update books set title=$1, author=$2, year=$3 where id=$4 RETURNING id",
+		&book.Title, &book.Author, &book.Year, &book.ID)
+
+	if err != nil {
+		return 0, err
+	}
+
+	rowsUpdated, err := results.RowsAffected()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsUpdated, nil
+}
+
 func (b BookRepository) GetBook(db *sql.DB, book models.Book, id string) (models.Book, error) {
 	row := db.QueryRow("select * from books where id=$1", id)
 

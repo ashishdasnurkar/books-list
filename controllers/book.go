@@ -66,6 +66,32 @@ func (c Controller) AddBook(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+func (c Controller) UpdateBook(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var book models.Book
+		var rowsUpdated int64
+		var error models.Error
+		json.NewDecoder(r.Body).Decode(&book)
+
+		if book.ID == "0" || strings.TrimSpace(book.Author) == "" || strings.TrimSpace(book.Title) == "" || strings.TrimSpace(book.Year) == "" {
+			error.Message = "Missing fields ..."
+			utils.SendError(w, http.StatusBadRequest, error)
+			return
+		}
+
+		bookRepo := bookRepository.BookRepository{}
+		rowsUpdated, err := bookRepo.UpdateBook(db, book)
+
+		if err != nil {
+			error.Message = "Internal server error ..."
+			utils.SendError(w, http.StatusInternalServerError, error)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		utils.SendSuccess(w, rowsUpdated)
+	}
+}
+
 func (c Controller) GetBook(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var book models.Book
