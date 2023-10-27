@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/ashishdasnurkar/books-list/models"
 	bookRepository "github.com/ashishdasnurkar/books-list/repository/book"
@@ -35,6 +37,32 @@ func (c Controller) GetBooks(db *sql.DB) http.HandlerFunc {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		utils.SendSuccess(w, books)
+	}
+}
+
+func (c Controller) AddBook(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var book models.Book
+		var bookID int
+		var error models.Error
+		json.NewDecoder(r.Body).Decode(&book)
+
+		if strings.TrimSpace(book.Author) == "" || strings.TrimSpace(book.Title) == "" || strings.TrimSpace(book.Year) == "" {
+			error.Message = "Missing fields ..."
+			utils.SendError(w, http.StatusBadRequest, error)
+			return
+		}
+
+		bookRepo := bookRepository.BookRepository{}
+		bookID, err := bookRepo.AddBook(db, book, bookID)
+
+		if err != nil {
+			error.Message = "Internal server error ..."
+			utils.SendError(w, http.StatusInternalServerError, error)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		utils.SendSuccess(w, bookID)
 	}
 }
 

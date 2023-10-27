@@ -37,7 +37,7 @@ func main() {
 	r.HandleFunc("/", HomeHandler)
 	r.HandleFunc("/books", controller.GetBooks(db)).Methods("GET")
 	r.HandleFunc("/book/{id}", controller.GetBook(db)).Methods("GET")
-	r.HandleFunc("/books", addBooks).Methods("POST")
+	r.HandleFunc("/books", controller.AddBook(db)).Methods("POST")
 	r.HandleFunc("/books", updateBook).Methods("PUT")
 	r.HandleFunc("/book/{id}", controller.RemoveBook(db)).Methods("DELETE")
 	http.ListenAndServe(":8080", r)
