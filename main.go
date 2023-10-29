@@ -10,6 +10,7 @@ import (
 	"github.com/ashishdasnurkar/books-list/controllers"
 	"github.com/ashishdasnurkar/books-list/driver"
 	"github.com/ashishdasnurkar/books-list/models"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/subosito/gotenv"
 )
@@ -39,7 +40,8 @@ func main() {
 	r.HandleFunc("/books", controller.AddBook(db)).Methods("POST")
 	r.HandleFunc("/books", controller.UpdateBook(db)).Methods("PUT")
 	r.HandleFunc("/book/{id}", controller.RemoveBook(db)).Methods("DELETE")
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":8080", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"}),
+		handlers.AllowedOrigins([]string{"*"}))(r))
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
